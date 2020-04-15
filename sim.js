@@ -2,7 +2,7 @@ var hi = 1;
 console.log("Herro World!");
 
 
-var State = {
+var Infectivity = {
     S: 0, // Susceptible
     I: 1, // Infected
     R: 2, // Removed
@@ -19,9 +19,61 @@ class Board {
         }
     }
 
-    updateNodes(dt) {
+    updatePositions(dt) {
         for (var i = 0; i < this.nodes.length; i++) {
             this.nodes[i].updatePosition(dt);
+        }
+    }
+
+    updateInfectivitys(dt) {
+        var sNodes = [];
+        var iNodes = []; // TODO: efficent stored so dont have to loop
+        for (var i = 0; i < this.nodes.length; i++) {
+            if (this.nodes[i].infectivity == Infectivity.S) {
+                sNodes.push(this.nodes[i]);
+            } else if (this.nodes[i].infectivity == Infectivity.I) {
+                iNodes.push(this.nodes[i])
+            }
+        }
+
+        for (const sNode of sNodes) {
+            for (const iNode of iNodes) {
+                var dist = Util.dist(sNode.getPos(), iNode.getPos());
+                if (dist < iNode.infectionRadius && Math.random() < sNode.pInfectionOnContact * dt) {
+                    sNode.setInfectivity(Infectivity.I);
+                }
+            }
+        }
+
+        for (const iNode of iNodes) {
+            if (iNode.time - iNode.timeOfInfection > iNode.durrationOfInfection) {
+                iNode.setInfectivity(Infectivity.R);
+            }
+        }
+    }
+
+    updateSocialDistancing() {
+        var repulsionPoints = [];
+        if (this.limit_social_distancing_to_infectious) {
+            for (const node of this.nodes) {
+                if (node.isSymptomatic) {
+                    repulsionPoints.push(node.getPos());
+                }
+            }
+        } else {
+            for (const node of this.nodes) {
+                repulsionPoints.push(node.getPos());
+            }
+        }
+
+        if (repulsionPoints.length > 0) {
+            for (const node of this.nodes) {
+                if (node.socialDistanceStrength > 0) {
+                    repulsionPoints.sort(function (a, b) { return Util.closest(node.getPos(), a, b) });
+                    // repulsionPoints are the closest N nodes, excluding itself
+                    node.repulsionPoints = repulsionPoints.slice(1, this.socialDistanceN + 1); 
+                }
+            }
         }
     }
 
@@ -34,8 +86,15 @@ class Board {
     iterate(dt) {
         var ctx = Simulation.canvas.getContext('2d');
         ctx.clearRect(0, 0, this.width, this.height);
-        this.updateNodes(dt);
+
+        this.updatePositions(dt);
+        this.updateInfectivitys(dt);
+        this.updateSocialDistancing();
         this.drawNodes();
+    }
+
+    getRandomNode() {
+        return this.nodes[Math.floor(Simulation.board.nodes.length * Math.random())];
     }
 
     toString() {
@@ -50,25 +109,29 @@ class Board {
 
 class Node {
     max_speed = 3;
-    p_symptomatic_on_infection = 1;
-    infection_radius = 0.5;
+    pSymptomaticOnInfection = 1;
+    infectionRadius = 15;
+    pInfectionOnContact = 0.8;
     stepSize = 1;
-    stepDurration = 1;
+    stepDurration = 8;
+    wallBuffer = 10;
     stepStrength = 1;
-    socialDistanceStrength = 1;
-    wallBuffer = 1;
+    socialDistanceStrength = 0;
+    durrationOfInfection = 100;
 
     constructor(boardWidth, boardHeight) {
-        this.state = State.S;
+        this.infectivity = Infectivity.S;
         this.x = Util.round(boardWidth * Math.random(), 5)
         this.y = Util.round(boardHeight * Math.random(), 5);
-        this.dlBound = [-boardWidth / 2, -boardHeight / 2];
-        this.urBound = [boardWidth / 2, boardHeight / 2];
+        this.dlBound = [0, 0];
+        this.urBound = [boardWidth, boardHeight];
         this.velocity = [0, 0];
         this.stepVector = [0, 0];
         this.repulsionPoints = [];
         this.time = 0;
         this.lastStepTime = this.time - this.stepDurration - 1;
+        this.timeOfRemoval;
+        this.timeOfInfection;
     }
 
     updatePosition(dt) {
@@ -127,7 +190,7 @@ class Node {
         var minDist = Infinity;
 
         for (var i = 0; i < this.repulsionPoints.length; i++) {
-            var toPoint = this.repulsionPoints[i] - getPos()[i];
+            var toPoint = [this.repulsionPoints[i].x - this.x, this.repulsionPoints[i].y - this.y];
             var dist = Util.norm(toPoint);
 
             if (0 < dist < minDist) {
@@ -184,6 +247,19 @@ class Node {
         }
     }
 
+    setInfectivity(infectivity) {
+        this.infectivity = infectivity;
+        if (infectivity = Infectivity.I) {
+            this.timeOfInfection = this.time;
+            if (Math.random() < this.pSymptomaticOnInfection) {
+                this.isSymptomatic = true;
+            }
+        } else if (infectivity = Infectivity.R){
+            this.timeOfRemoval = this.time;
+            this.symptomatic = false;
+        }
+    }
+
     toString() {
         return "(" + this.x + ", " + this.y + ")";
     }
@@ -193,7 +269,7 @@ class Node {
 
         ctx.beginPath();
         ctx.arc(this.x, this.y, Simulation.config.nodeRadius, 0, 2 * Math.PI, false);
-        ctx.fillStyle = Simulation.config.colors[this.state];
+        ctx.fillStyle = Simulation.config.colors[this.infectivity];
         ctx.fill()
     }
 }
@@ -209,12 +285,12 @@ class Util {
         return [Util.round(x, 5), Util.round(y, 5)];
     }
 
-    static norm(vector) {
+    static norm(vector) { // TODO: de-abstract this
         var sum = 0;
         for (var i = 0; i < vector.length; i++) {
             sum += Util.pow(vector[i], 2)
         }
-        return Math.sqrt(sum, 0.5);
+        return Math.sqrt(sum);
     }
 
     static round(x, dec) {
@@ -229,7 +305,7 @@ class Util {
         return y;
     }
 
-    static vectMult(scalar, vect) {
+    static vectMult(scalar, vect) { // TODO: de-abstract this
         var product = new Array(vect.length);
         for (var i = 0; i < vect.length; i++) {
             product[i] = vect[i] * scalar;
@@ -237,13 +313,25 @@ class Util {
         return product;
     }
 
-    static vectSum(vect1, vect2) {
+    static vectSum(vect1, vect2) { // TODO: de-abstract this
         var len = vect1.length > vect2.length ? vect1.length : vect2.length;
         var sum = new Array(len);
         for (var i = 0; i < len; i++) {
             sum[i] = ((vect1[i] === undefined) ? 0 : vect1[i]) + ((vect2[i] === undefined) ? 0 : vect2[i])
         }
         return sum;
+    }
+
+    static sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    static dist(coord1, coord2) {
+        return Math.sqrt(this.pow(coord1[0] - coord2[0], 2) + this.pow(coord1[1] - coord2[1], 2))
+    }
+
+    static closest(target, coord1, coord2) {
+        return this.dist(coord1, target) - this.dist(coord2, target);
     }
 
 }
@@ -259,10 +347,10 @@ var Simulation = {
     boardConfig: {
         width: 500,
         height: 500,
-        n: 5,
+        n: 50,
     },
     board: new Board(),
-    setupBoard: function() {
+    setupBoard: function () {
         this.board = new Board(this.boardConfig.width, this.boardConfig.height, this.boardConfig.n);
     },
     config: {
@@ -281,6 +369,11 @@ var Simulation = {
 function startGame() {
     Simulation.setupCanvas();
     Simulation.setupBoard();
-    Simulation.board.iterate(2);
+    Simulation.board.getRandomNode().setInfectivity(Infectivity.I);
+    this.interval = setInterval(updateSim, 20)
     console.log(Simulation.board.toString());
+}
+
+function updateSim() {
+    Simulation.board.iterate(1);
 }
