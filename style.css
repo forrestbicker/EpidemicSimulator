@@ -66,7 +66,8 @@ h2 {
 .minorTitleColumn {
     flex: 60px;
     padding: 3px;
-    border-bottom: 2px solid #999
+    border-bottom: 2px solid #999;
+    margin: 0px 0px 5px 5px;
 }
 
 .paneltext {
@@ -85,7 +86,8 @@ h2 {
 .paneldesc {
     color: #888;
     text-align: left;
-    font-weight: 300
+    font-weight: 300;
+    height: 20px;
 }
 
 .slidertext {
