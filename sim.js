@@ -78,7 +78,7 @@ class Board {
 
         if (repulsionPoints.length > 0) {
             for (const node of this.nodes) {
-                if (node.socialDistanceStrength > 0) {
+                if (node.socialDistanceStrength != 0) {
                     repulsionPoints.sort(function (a, b) { return Util.closest(node.getPos(), a, b) });
                     // repulsionPoints are the closest N nodes, excluding itself
                     node.repulsionPoints = repulsionPoints.slice(1, this.socialDistanceN + 1);
@@ -150,7 +150,7 @@ class Node {
     stepDurration = 2;
     wallBuffer = 10;
     stepStrength = 1;
-    socialDistanceStrength = 1000;
+    socialDistanceStrength = 10;
     durrationOfInfection = 100;
 
     constructor(boardWidth, boardHeight) {
@@ -192,7 +192,7 @@ class Node {
         }
 
         // social distancing
-        if (this.socialDistanceStrength > 0) {
+        if (this.socialDistanceStrength != 0) {
             netForce = Util.vectSum(netForce, this.calculateSocialDistanceForce());
         }
 
@@ -392,9 +392,9 @@ var Simulation = {
     },
     config: {
         colors: {
-            0: "#DEE6E7",
+            0: "#5AF7B0",
             1: "#F0719B",
-            2: "#5AF7B0",
+            2: "#DEE6E7",
         },
         nodeRadius: 5,
     },
