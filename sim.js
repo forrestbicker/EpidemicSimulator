@@ -392,9 +392,9 @@ var Simulation = {
     },
     config: {
         colors: {
-            0: "#00FF00",
-            1: "#FF0000",
-            2: "#0000FF",
+            0: "#DEE6E7",
+            1: "#F0719B",
+            2: "#5AF7B0",
         },
         nodeRadius: 5,
     },
