@@ -14,6 +14,51 @@
     <script src="sim.js"></script>
 </body>
 <div style="height: 220px;">
+    <div class="column">
+        <div class="minorTitleColumn">Transmission Dynamics</div>
+        <div class="column">
+            <div class="paneltitle">Population Inputs</div>
+            <div class="paneldesc">Size of population<br></div>
+            <div class="slidertext" id="oPopulation">50</div>
+            <input class="range" id="uPopulation" type="range" min="1" max="150" step="1" style="margin-bottom: 20px;">
+
+            <div class="paneldesc" style="text-align: center;">Infect a random person<br></div>
+            <button id=uInfect>Infect!</button>
+        </div>
+        <div class="column">
+            <div class="paneltitle">Contagion Dynamics</div>
+            <div class="paneldesc">pInfectionOnContact<br></div>
+            <div class="slidertext" id="oPInfectionOnContact">50</div>
+            <input class="range" id="uPInfectionOnContact" type="range" min="0" max="1" step="0.05" style="margin-bottom: 20px;">
+
+            <div class="paneltitle">Contagion Dynamics</div>
+            <div class="paneldesc">pInfectionOnContact<br></div>
+            <div class="slidertext" id="oPInfectionOnContact">50</div>
+            <input class="range" id="uPInfectionOnContact" type="range" min="0" max="1" step="0.05" style="margin-bottom: 20px;">
+        </div>
+    </div>
+    <div class="column">
+        <div class="minorTitleColumn">Contagion Dynamics</div>
+        <div class="column">
+            <div class="paneltitle">Population Inputs</div>
+            <div class="paneldesc">Size of population<br></div>
+            <div class="slidertext" id="oPopulation">50</div>
+            <input class="range" id="uPopulation" type="range" min="1" max="100" step="1" style="margin-bottom: 20px;">
+        </div>
+        <div class="column">
+            <div class="paneltitle">Population Inputs</div>
+            <div class="paneldesc">Size of population<br></div>
+            <div class="slidertext" id="oPopulation">50</div>
+            <input class="range" id="uPopulation" type="range" min="1" max="100" step="1" style="margin-bottom: 20px;">
+        </div>
+        <div class="row">
+            <div class="paneldesc" style="text-align: center;">Infect a random person<br></div>
+            <button id=uInfect>Infect!</button>
+        </div>
+    </div>
+</div>
+
+<div style="height: 220px;">
     <div class="minorTitle">
         <div class="minorTitleColumn">Transmission Dynamics</div>
         <div style="width: 20px;"></div>

@@ -1,7 +1,7 @@
-@import url('https://fonts.googleapis.com/css?family=Source+Code+Pro&display=swap');
+@import url("https://fonts.googleapis.com/css?family=Source+Code+Pro&display=swap");
 canvas {
     border: 1px solid #354274;
-    background-color: #EEFFFF;
+    background-color: #eeffff;
     margin-left: auto;
     margin-right: auto;
     display: block;
@@ -20,7 +20,7 @@ h2 {
     padding-bottom: 20px;
     font-weight: 300;
     font-family: nyt-franklin, helvetica, arial, sans-serif;
-    padding-bottom: 30px
+    padding-bottom: 30px;
 }
 
 .center {
@@ -32,28 +32,34 @@ h2 {
     color: #666;
     font-size: 16.5px;
     text-align: justify;
-    line-height: 24px
+    line-height: 24px;
 }
 
 .row {
     font-family: nyt-franklin, helvetica, arial, sans-serif;
-    margin: auto;
-    display: flex;
-    width: 948px;
-    font-size: 13px
+    /* margin: 0px 5px 5px 5px;
+  padding: 0px 5px 5px 5px; */
+    display: block;
+    width: 150px;
+    font-size: 13px;
 }
 
 .caption {
     font-family: nyt-franklin, helvetica, arial, sans-serif;
-    font-size: 13px
+    font-size: 13px;
 }
 
 .column {
+    font-family: nyt-franklin, helvetica, arial, sans-serif;
+    font-size: 13px;
     flex: 158px;
+    display: inline-block;
     padding: 0px 5px 5px 0px;
-    margin:0px 5px 5px 5px
+    vertical-align: top;
+    margin: 0px 5px 5px 5px;
 }
 
+/* 
 .minorTitle {
     font-family: nyt-franklin, helvetica, arial, sans-serif;
     margin: auto;
@@ -61,9 +67,12 @@ h2 {
     width: 950px;
     font-size: 17px;
     color: #666
-}
+} */
 
 .minorTitleColumn {
+    font-family: nyt-franklin, helvetica, arial, sans-serif;
+    font-size: 17px;
+    color: #666;
     flex: 60px;
     padding: 3px;
     border-bottom: 2px solid #999;
@@ -72,7 +81,7 @@ h2 {
 
 .paneltext {
     position: relative;
-    height: 130px
+    height: 130px;
 }
 
 .paneltitle {
@@ -80,7 +89,7 @@ h2 {
     line-height: 17px;
     padding-bottom: 4px;
     font-weight: 700;
-    font-family: nyt-franklin, helvetica, arial, sans-serif
+    font-family: nyt-franklin, helvetica, arial, sans-serif;
 }
 
 .paneldesc {
@@ -96,31 +105,31 @@ h2 {
     padding-bottom: 0px;
     padding-top: 7px;
     font-family: nyt-franklin, helvetica, arial, sans-serif;
-    font-family: 'Source Code Pro', monospace;
+    font-family: "Source Code Pro", monospace;
     font-size: 10px;
-    text-align: right
+    text-align: right;
 }
 
 .range {
-    width: 100%
+    width: 100%;
 }
 
 .chart {
     width: 100%;
     margin: 0 auto;
     padding-top: 0px;
-    padding-bottom: 10px
+    padding-bottom: 10px;
 }
 
 .legend {
     color: #888;
     font-family: Helvetica, Arial;
-    font-size: .725em;
+    font-size: 0.725em;
     font-weight: 200;
     height: 100px;
     left: 20px;
     top: 4px;
-    position: absolute
+    position: absolute;
 }
 
 .legendtitle {
@@ -128,7 +137,7 @@ h2 {
     font-size: 13px;
     padding-bottom: 6px;
     font-weight: 600;
-    font-family: nyt-franklin, helvetica, arial, sans-serif
+    font-family: nyt-franklin, helvetica, arial, sans-serif;
 }
 
 .legendtext {
@@ -137,5 +146,5 @@ h2 {
     padding-bottom: 5px;
     font-weight: 300;
     font-family: nyt-franklin, helvetica, arial, sans-serif;
-    line-height: 14px
+    line-height: 14px;
 }

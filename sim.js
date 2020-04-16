@@ -412,7 +412,7 @@ function startGame() {
     document.getElementById("uInfect").onclick = function () { Simulation.board.infectRandomNode() };
     Simulation.board.getRandomNode().setInfectivity(Infectivity.I);
     this.interval = setInterval(update, 20)
-    console.log(Simulation.board.toString());
+    // console.log(Simulation.board.toString());
 }
 
 function update() {
