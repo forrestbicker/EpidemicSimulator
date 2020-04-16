@@ -9,19 +9,29 @@ var Infectivity = {
 };
 
 class Board {
+    limit_social_distancing_to_infectious = false;
+    socialDistanceN = 5;
 
-    constructor(width, height, n) {
+    constructor(width, height, population) {
         this.width = width;
         this.height = height;
         this.nodes = [];
-        for (var i = 0; i < n; i++) {
-            this.nodes.push(new Node(width, height));
+        for (var i = 0; i < population; i++) {
+            this.addNode(width, height);
         }
     }
 
+    addNode() {
+        this.nodes.push(new Node(this.width, this.height));
+    }
+
+    removeNode() {
+        this.nodes.pop();
+    }
+
     updatePositions(dt) {
-        for (var i = 0; i < this.nodes.length; i++) {
-            this.nodes[i].updatePosition(dt);
+        for (const node of this.nodes) {
+            node.updatePosition(dt);
         }
     }
 
@@ -71,7 +81,7 @@ class Board {
                 if (node.socialDistanceStrength > 0) {
                     repulsionPoints.sort(function (a, b) { return Util.closest(node.getPos(), a, b) });
                     // repulsionPoints are the closest N nodes, excluding itself
-                    node.repulsionPoints = repulsionPoints.slice(1, this.socialDistanceN + 1); 
+                    node.repulsionPoints = repulsionPoints.slice(1, this.socialDistanceN + 1);
                 }
             }
         }
@@ -97,6 +107,30 @@ class Board {
         return this.nodes[Math.floor(Simulation.board.nodes.length * Math.random())];
     }
 
+    updateParams(population) {
+        this.updatePopulation(population);
+    }
+
+    updatePopulation(population) {
+        if (this.nodes.length > population) {
+            while (this.nodes.length > population) {
+                this.removeNode();
+            }
+        } else if (this.nodes.length < population) {
+            while (this.nodes.length < population) {
+                this.addNode();
+            }
+        }
+    }
+
+    infectRandomNode() {
+        var i = this.nodes.length - 1;
+        while (this.nodes[i].infectivity != Infectivity.S) {
+            i--;
+        }
+        this.nodes[i].setInfectivity(Infectivity.I);
+    }
+
     toString() {
         var str = "";
         for (var i = 0; i < this.nodes.length; i++) {
@@ -112,11 +146,11 @@ class Node {
     pSymptomaticOnInfection = 1;
     infectionRadius = 15;
     pInfectionOnContact = 0.8;
-    stepSize = 1;
-    stepDurration = 8;
+    stepSize = 2;
+    stepDurration = 2;
     wallBuffer = 10;
     stepStrength = 1;
-    socialDistanceStrength = 0;
+    socialDistanceStrength = 1000;
     durrationOfInfection = 100;
 
     constructor(boardWidth, boardHeight) {
@@ -190,7 +224,7 @@ class Node {
         var minDist = Infinity;
 
         for (var i = 0; i < this.repulsionPoints.length; i++) {
-            var toPoint = [this.repulsionPoints[i].x - this.x, this.repulsionPoints[i].y - this.y];
+            var toPoint = [this.repulsionPoints[i][0] - this.x, this.repulsionPoints[i][1] - this.y];
             var dist = Util.norm(toPoint);
 
             if (0 < dist < minDist) {
@@ -199,7 +233,7 @@ class Node {
 
             // adds step vector component to netForceVector
             if (dist > 0) {
-                repulsionForce -= this.socialDistanceStrength * toPoint / Util.pow(dist, 3);
+                repulsionForce = Util.vectSum(repulsionForce, Util.vectMult(-this.socialDistanceStrength / Util.pow(dist, 3), toPoint));
             }
         }
 
@@ -248,15 +282,18 @@ class Node {
     }
 
     setInfectivity(infectivity) {
-        this.infectivity = infectivity;
-        if (infectivity = Infectivity.I) {
-            this.timeOfInfection = this.time;
-            if (Math.random() < this.pSymptomaticOnInfection) {
-                this.isSymptomatic = true;
+        if (infectivity > this.infectivity) {
+            this.infectivity = infectivity;
+
+            if (infectivity = Infectivity.I) {
+                this.timeOfInfection = this.time;
+                if (Math.random() < this.pSymptomaticOnInfection) {
+                    this.isSymptomatic = true;
+                }
+            } else if (infectivity = Infectivity.R) {
+                this.timeOfRemoval = this.time;
+                this.symptomatic = false;
             }
-        } else if (infectivity = Infectivity.R){
-            this.timeOfRemoval = this.time;
-            this.symptomatic = false;
         }
     }
 
@@ -337,7 +374,7 @@ class Util {
 }
 
 var Simulation = {
-    canvas: document.createElement("canvas"),
+    canvas: document.getElementById("sim"),
     setupCanvas: function () {
         this.canvas.width = 500;
         this.canvas.height = 500;
@@ -360,20 +397,25 @@ var Simulation = {
             2: "#0000FF",
         },
         nodeRadius: 5,
-    }
+    },
+    inputs: {
+        getPopulation: function () {
+            return document.getElementById("uPopulation").value;
+        }
+    },
 }
-// console.log(b.toString());
-// console.log("\n");
-// console.log(b.toString());
+
 
 function startGame() {
     Simulation.setupCanvas();
     Simulation.setupBoard();
+    document.getElementById("uInfect").onclick = function () { Simulation.board.infectRandomNode() };
     Simulation.board.getRandomNode().setInfectivity(Infectivity.I);
-    this.interval = setInterval(updateSim, 20)
+    this.interval = setInterval(update, 20)
     console.log(Simulation.board.toString());
 }
 
-function updateSim() {
+function update() {
+    Simulation.board.updateParams(Simulation.inputs.getPopulation());
     Simulation.board.iterate(1);
 }
