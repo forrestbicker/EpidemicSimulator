@@ -18,7 +18,7 @@ class Board {
             infectionRadius: -1,
             pInfectedOnContact: -1,
             infectionDurration: -1,
-            pSymptomaicOnInfection: -1,
+            pSymptomaticOnInfection: -1,
         };
         this.behaviors = {
             socialDistancing: {
@@ -132,12 +132,12 @@ class Board {
         }
     }
 
-    updateContagion(infectionRadius, pInfectedOnContact, infectionDurration, pSymptomaicOnInfection) {
+    updateContagion(infectionRadius, pInfectedOnContact, infectionDurration, pSymptomaticOnInfection) {
         this.contagion.infectionRadius = infectionRadius;
         this.contagion.pInfectedOnContact = pInfectedOnContact;
         this.contagion.pInfectedOnContact = pInfectedOnContact;
         this.contagion.infectionDurration = infectionDurration;
-        this.contagion.pSymptomaicOnInfection = pSymptomaicOnInfection;
+        this.contagion.pSymptomaticOnInfection = pSymptomaticOnInfection;
     }
 
     updateBehavior(intensity, percentObserving, startThreshold, isAvoiderFunc, isAvoidedFunc) {
@@ -170,7 +170,6 @@ class Board {
 
 class Node {
     max_speed = 3;
-    pSymptomaticOnInfection = 1;
     stepSize = 2;
     stepDurration = 2;
     wallBuffer = 10;
@@ -190,6 +189,7 @@ class Node {
         this.lastStepTime = this.time - this.stepDurration - 1;
         this.timeOfRemoval;
         this.timeOfInfection;
+        this.isSymptomatic = false;
     }
 
     updatePosition(force, dt) {
@@ -311,7 +311,7 @@ class Node {
                 this.timeOfInfection = this.time;
             } else if (infectivity = Infectivity.R) {
                 this.timeOfRemoval = this.time;
-                this.symptomatic = false;
+                this.isSymptomatic = false;
             }
         }
     }
@@ -322,9 +322,16 @@ class Node {
 
     draw(context) {
         context.beginPath();
-        context.arc(this.x, this.y, Simulation.config.nodeRadius, 0, 2 * Math.PI, false);
-        context.fillStyle = Simulation.config.colors[this.infectivity];
-        context.fill()
+        if (this.isSymptomatic) {
+            context.arc(this.x, this.y, Simulation.config.nodeRadius - 1, 0, 2 * Math.PI, false);
+            context.lineWidth = 3;
+            context.strokeStyle = Simulation.config.colors[Infectivity.I];
+            context.stroke();
+        } else {
+            context.arc(this.x, this.y, Simulation.config.nodeRadius, 0, 2 * Math.PI, false);
+            context.fillStyle = Simulation.config.colors[this.infectivity];
+            context.fill();
+        }
     }
 }
 
@@ -429,8 +436,8 @@ var Simulation = {
         "InfectionDurration": {
             "default": 100,
         },
-        "PSymptomaicOnInfection": {
-            "default": 0.5,
+        "PSymptomaticOnInfection": {
+            "default": 0.8,
         },
         "SocialDistanceIntensity": {
             "default": 0,
@@ -482,10 +489,10 @@ function update() {
         Simulation.inputs.InfectionRadius.u.value * 10,
         Simulation.inputs.PInfectedOnContact.u.value,
         Simulation.inputs.InfectionDurration.u.value,
-        Simulation.inputs.PSymptomaicOnInfection.u.value
+        Simulation.inputs.PSymptomaticOnInfection.u.value
     );
     Simulation.board.updateBehavior(
-        Simulation.inputs.SocialDistanceIntensity.u.value,
+        Simulation.inputs.SocialDistanceIntensity.u.value * 5000,
         Simulation.inputs.PercentSocialDistancing.u.value,
         Simulation.inputs.SocialDistancingThreshold.u.value,
         Simulation.nodeUtil[Simulation.inputs.Avoider.u.value],
