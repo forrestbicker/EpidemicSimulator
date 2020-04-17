@@ -16,6 +16,8 @@ class Board {
         this.width = width;
         this.height = height;
         this.nodes = [];
+        this.infectionRadius = 0;
+        this.pInfectedOnContact = 0; // dummy default values, will be updated on load by slider
         for (var i = 0; i < population; i++) {
             this.addNode(width, height);
         }
@@ -49,7 +51,7 @@ class Board {
         for (const sNode of sNodes) {
             for (const iNode of iNodes) {
                 var dist = Util.dist(sNode.getPos(), iNode.getPos());
-                if (dist < iNode.infectionRadius && Math.random() < sNode.pInfectionOnContact * dt) {
+                if (dist < iNode.getInfectionRadius() && Math.random() < sNode.getPInfectedOnContact() * dt) {
                     sNode.setInfectivity(Infectivity.I);
                 }
             }
@@ -107,18 +109,31 @@ class Board {
         return this.nodes[Math.floor(Simulation.board.nodes.length * Math.random())];
     }
 
-    updateParams(population) {
-        this.updatePopulation(population);
-    }
 
-    updatePopulation(population) {
-        if (this.nodes.length > population) {
-            while (this.nodes.length > population) {
+    updatePopulation(newPopulation) {
+        if (this.nodes.length > newPopulation) {
+            while (this.nodes.length > newPopulation) {
                 this.removeNode();
             }
-        } else if (this.nodes.length < population) {
-            while (this.nodes.length < population) {
+        } else if (this.nodes.length < newPopulation) {
+            while (this.nodes.length < newPopulation) {
                 this.addNode();
+            }
+        }
+    }
+
+    updateInfectionRadius(newRadius) {
+        if (this.infectionRadius != newRadius) {
+            for (const node of this.nodes) {
+                node.infectionRadius = newRadius;
+            }
+        }
+    }
+
+    updatePInfectedOnContact(newP) {
+        if (this.pInfectedOnContact != newP) {
+            for (const node of this.nodes) {
+                node.pInfectedOnContact = newP;
             }
         }
     }
@@ -144,8 +159,6 @@ class Board {
 class Node {
     max_speed = 3;
     pSymptomaticOnInfection = 1;
-    infectionRadius = 15;
-    pInfectionOnContact = 0.8;
     stepSize = 2;
     stepDurration = 2;
     wallBuffer = 10;
@@ -166,6 +179,8 @@ class Node {
         this.lastStepTime = this.time - this.stepDurration - 1;
         this.timeOfRemoval;
         this.timeOfInfection;
+        this.infectionRadius = 0;
+        this.pInfectedOnContact = 0;
     }
 
     updatePosition(dt) {
@@ -301,6 +316,14 @@ class Node {
         return "(" + this.x + ", " + this.y + ")";
     }
 
+    getInfectionRadius() {
+        return this.infectionRadius; // TODO: if wearingPPE return radius - PPE protection factor
+    }
+
+    getPInfectedOnContact() {
+        return this.pInfectedOnContact; // TODO: if washingHands return pInfectedOnContact - washing protection factor
+    }
+
     draw() {
         var ctx = Simulation.canvas.getContext('2d');
 
@@ -373,6 +396,7 @@ class Util {
 
 }
 
+
 var Simulation = {
     canvas: document.getElementById("sim"),
     setupCanvas: function () {
@@ -398,24 +422,55 @@ var Simulation = {
         },
         nodeRadius: 5,
     },
-    inputs: {
-        getPopulation: function () {
-            return document.getElementById("uPopulation").value;
-        }
+    sliders: {
+        "Population": {
+            "default": 5,
+        },
+        "PInfectedOnContact": {
+            "default": 0.20,
+        },
+        "InfectionRadius": {
+            "default": 5,
+        },
     },
 }
 
 
 function startGame() {
+    setupUI();
     Simulation.setupCanvas();
     Simulation.setupBoard();
-    document.getElementById("uInfect").onclick = function () { Simulation.board.infectRandomNode() };
     Simulation.board.getRandomNode().setInfectivity(Infectivity.I);
     this.interval = setInterval(update, 20)
     // console.log(Simulation.board.toString());
 }
 
 function update() {
-    Simulation.board.updateParams(Simulation.inputs.getPopulation());
+    Simulation.board.updatePopulation(Simulation.sliders["Population"]["u"].value);
+    Simulation.board.updateInfectionRadius(Simulation.sliders["InfectionRadius"]["u"].value)
+    Simulation.board.updatePInfectedOnContact(Simulation.sliders["PInfectedOnContact"]["u"].value)
     Simulation.board.iterate(1);
+}
+
+
+function setupSlider(id) {
+    // finds slider input and output
+    Simulation.sliders[id]["u"] = document.getElementById("u" + id);
+    Simulation.sliders[id]["o"] = document.getElementById("o" + id);
+
+    // sets slider default
+    Simulation.sliders[id]["u"].value = Simulation.sliders[id]["default"];
+    Simulation.sliders[id]["o"].innerHTML = Simulation.sliders[id]["u"].value;
+
+    // asigns slider updating rule
+    Simulation.sliders[id]["u"].oninput = function () {
+        Simulation.sliders[id]["o"].innerHTML = this.value;
+    }
+}
+
+function setupUI() {
+    for (const slider in Simulation.sliders) {
+        setupSlider(slider);
+    }
+    document.getElementById("uInfect").onclick = function () { Simulation.board.infectRandomNode() };
 }
