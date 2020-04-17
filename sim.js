@@ -44,8 +44,14 @@ class Board {
     }
 
     updateNodePositions(dt) {
-        for (const node of this.nodes) {
-            node.updatePosition(node.calculateNetForce(this.behaviors.socialDistancing.intensity), dt);
+        for (var i = 0; i < this.nodes.length; i++) {
+            var socialDistanceIntensity;
+            if (this.behaviors.socialDistancing.percentObserving >= i / this.nodes.length) {
+                socialDistanceIntensity = this.behaviors.socialDistancing.intensity;
+            } else {
+                socialDistanceIntensity = 0;
+            }
+            this.nodes[i].updatePosition(socialDistanceIntensity, dt);
         }
     }
 
@@ -192,7 +198,11 @@ class Node {
         this.isSymptomatic = false;
     }
 
-    updatePosition(force, dt) {
+    updatePosition(socialDistanceIntensity, dt) {
+        this.applyForce(this.calculateNetForce(socialDistanceIntensity), dt);
+    }
+
+    applyForce(force, dt) {
         this.velocity = Util.vectSum(Util.vectMult(dt, force), this.velocity);
 
         // limit speed
@@ -443,7 +453,7 @@ var Simulation = {
             "default": 0,
         },
         "PercentSocialDistancing": {
-            "default": 100,
+            "default": 1,
         },
         "SocialDistancingThreshold": {
             "default": 10,
@@ -493,7 +503,7 @@ function update() {
     );
     Simulation.board.updateBehavior(
         Simulation.inputs.SocialDistanceIntensity.u.value * 5000,
-        Simulation.inputs.PercentSocialDistancing.u.value,
+        Simulation.inputs.PercentSocialDistancing.u.value / 100,
         Simulation.inputs.SocialDistancingThreshold.u.value,
         Simulation.nodeUtil[Simulation.inputs.Avoider.u.value],
         Simulation.nodeUtil[Simulation.inputs.Avoided.u.value]
