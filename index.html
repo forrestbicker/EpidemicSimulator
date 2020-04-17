@@ -10,12 +10,10 @@
 
 <canvas id="sim"></canvas>
 
-<body onload="startGame()">
-    <script src="sim.js"></script>
-</body>
+
 <div style="height: 220px;">
     <div class="column">
-        <div class="minorTitleColumn">Transmission Dynamics</div>
+        <div class="minorTitleColumn">Environment Parameters</div>
         <div class="column">
             <div class="paneltitle">Population Inputs</div>
             <div class="paneldesc">Size of population<br></div>
@@ -25,67 +23,62 @@
             <div class="paneldesc" style="text-align: center;">Infect a random person<br></div>
             <button id=uInfect>Infect!</button>
         </div>
-        <div class="column">
-            <div class="paneltitle">Contagion Dynamics</div>
-            <div class="paneldesc">pInfectionOnContact<br></div>
-            <div class="slidertext" id="oPInfectionOnContact">50</div>
-            <input class="range" id="uPInfectionOnContact" type="range" min="0" max="1" step="0.05" style="margin-bottom: 20px;">
-
-            <div class="paneltitle">Contagion Dynamics</div>
-            <div class="paneldesc">pInfectionOnContact<br></div>
-            <div class="slidertext" id="oPInfectionOnContact">50</div>
-            <input class="range" id="uPInfectionOnContact" type="range" min="0" max="1" step="0.05" style="margin-bottom: 20px;">
-        </div>
     </div>
     <div class="column">
-        <div class="minorTitleColumn">Contagion Dynamics</div>
+        <div class="minorTitleColumn">Contagion Parameters</div>
         <div class="column">
-            <div class="paneltitle">Population Inputs</div>
-            <div class="paneldesc">Size of population<br></div>
-            <div class="slidertext" id="oPopulation">50</div>
-            <input class="range" id="uPopulation" type="range" min="1" max="100" step="1" style="margin-bottom: 20px;">
+            <div class="paneltitle">Infection Rate</div>
+
+            <div class="paneldesc">pInfectionOnContact<br></div>
+            <div class="slidertext" id="oPInfectedOnContact">50</div>
+            <input class="range" id="uPInfectedOnContact" type="range" min="0" max="1" step="0.05" style="margin-bottom: 20px;">
+
+            <div class="paneldesc">Infection Radius<br></div>
+            <div class="slidertext" id="oInfectionRadius">50</div>
+            <input class="range" id="uInfectionRadius" type="range" min="0" max="50" step="5" style="margin-bottom: 20px;">
         </div>
         <div class="column">
-            <div class="paneltitle">Population Inputs</div>
-            <div class="paneldesc">Size of population<br></div>
-            <div class="slidertext" id="oPopulation">50</div>
-            <input class="range" id="uPopulation" type="range" min="1" max="100" step="1" style="margin-bottom: 20px;">
+            <div class="paneltitle">Infection Effects</div>
+
+            <div class="paneldesc">Durration of Infection<br></div>
+            <div class="slidertext" id="oInfectionDurration">50</div>
+            <input class="range" id="uInfectionDurration" type="range" min="0" max="1" step="0.05" style="margin-bottom: 20px;">
+
+            <div class="paneldesc">pSymptomaicOnInfection<br></div>
+            <div class="slidertext" id="oPSymptomaicOnInfection">50</div>
+            <input class="range" id="uPSymptomaicOnInfection" type="range" min="0" max="1" step="0.05" style="margin-bottom: 20px;">
         </div>
-        <div class="row">
-            <div class="paneldesc" style="text-align: center;">Infect a random person<br></div>
-            <button id=uInfect>Infect!</button>
+
+    </div>
+    <div class="column">
+        <div class="minorTitleColumn">Social Distancing Parameters</div>
+        <div class="column">
+            <div class="paneltitle">SD Dynamics</div>
+
+            <div class="paneldesc">Intensity of Repulsion<br></div>
+            <div class="slidertext" id="oPopulation">50</div>
+            <input class="range" id="uPopulation" type="range" min="-2" max="5" step="1" style="margin-bottom: 20px;">
+
+            <div class="paneldesc">Percent observing SD<br></div>
+            <div class="slidertext" id="oPopulation">50%</div>
+            <input class="range" id="uPopulation" type="range" min="0" max="100" step="1" style="margin-bottom: 20px;">
+        </div>
+        <div class="column">
+            <div class="paneltitle">SD Conditions</div>
+
+            <div class="paneldesc">SD Start Threshold<br></div>
+            <div class="slidertext" id="oPopulation">50%</div>
+            <input class="range" id="uPopulation" type="range" min="0" max="100" step="1" style="margin-bottom: 20px;">
+            
+            <div class="paneldesc" style="text-align: center;">Limit SD to Symptomatic<br><br>
+                <input type="checkbox" style="text-align: center;" id="SDSymptomaticOnly">
+            </div>
         </div>
     </div>
 </div>
 
-<div style="height: 220px;">
-    <div class="minorTitle">
-        <div class="minorTitleColumn">Transmission Dynamics</div>
-        <div style="width: 20px;"></div>
-        <div class="minorTitleColumn">Contagion Dynamics</div>
-    </div>
-    <div class="row">
-        <div class="column">
-            <div class="paneltitle">Population Inputs</div>
-            <div class="paneldesc">Size of population<br></div>
-            <div class="slidertext" id="oPopulation">50</div>
-            <input class="range" id="uPopulation" type="range" min="1" max="100" step="1" style="margin-bottom: 20px;">
-
-            <div class="paneldesc">Infect a random person<br></div>
-            <button id=uInfect>Infect!</button>
-
-            <!-- <div class="paneldesc">Number of initial infections.<br></div>
-            <div class="slidertext">1</div>
-            <input class="range" type="range" min="1" max="10000" step="1"> -->
-        </div>
-        <div class="column"></div>
-        <div class="column"></div>
-        <div class="column"></div>
-        <div class="column"></div>
-        <div class="column"></div>
-    </div>
-</div>
-
-<script src="updateSliders.js"></script>
+<body onload="startGame()">
+    <script src="sim.js"></script>
+</body>
 
 </html>
