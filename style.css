@@ -99,6 +99,13 @@ select {
     height: 20px;
 }
 
+button {
+    color: #888;
+    text-align: left;
+    font-weight: 300;
+    height: 20px;
+}
+
 .paneldesc {
     color: #888;
     text-align: left;
