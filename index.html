@@ -10,75 +10,75 @@
 
 <canvas id="sim"></canvas>
 
-
-<div style="height: 220px;">
-    <div class="column">
-        <div class="minorTitleColumn">Environment Parameters</div>
+<body>
+    <div style="margin: 0 auto;">
         <div class="column">
-            <div class="paneltitle">Population Inputs</div>
-            <div class="paneldesc">Size of population<br></div>
-            <div class="slidertext" id="oPopulation">50</div>
-            <input class="range" id="uPopulation" type="range" min="1" max="150" step="1" style="margin-bottom: 20px;">
+            <div class="minorTitleColumn">Environment Parameters</div>
+            <div class="column">
+                <div class="paneltitle">Population Inputs</div>
+                <div class="paneldesc">Size of population<br></div>
+                <div class="slidertext" id="oPopulation">50</div>
+                <input class="range" id="uPopulation" type="range" min="1" max="150" step="1" style="margin-bottom: 20px;">
 
-            <div class="paneldesc" style="text-align: center;">Infect a random person<br></div>
-            <button id=uInfect>Infect!</button>
-        </div>
-    </div>
-    <div class="column">
-        <div class="minorTitleColumn">Contagion Parameters</div>
-        <div class="column">
-            <div class="paneltitle">Infection Rate</div>
-
-            <div class="paneldesc">pInfectionOnContact<br></div>
-            <div class="slidertext" id="oPInfectedOnContact">50</div>
-            <input class="range" id="uPInfectedOnContact" type="range" min="0" max="1" step="0.05" style="margin-bottom: 20px;">
-
-            <div class="paneldesc">Infection Radius<br></div>
-            <div class="slidertext" id="oInfectionRadius">50</div>
-            <input class="range" id="uInfectionRadius" type="range" min="0" max="50" step="5" style="margin-bottom: 20px;">
+                <div class="paneldesc" style="text-align: center;">Infect a random person<br></div>
+                <button id=uInfect>Infect!</button>
+            </div>
         </div>
         <div class="column">
-            <div class="paneltitle">Infection Effects</div>
+            <div class="minorTitleColumn">Contagion Parameters</div>
+            <div class="column">
+                <div class="paneltitle">Infection Rate</div>
 
-            <div class="paneldesc">Durration of Infection<br></div>
-            <div class="slidertext" id="oInfectionDurration">50</div>
-            <input class="range" id="uInfectionDurration" type="range" min="0" max="1" step="0.05" style="margin-bottom: 20px;">
+                <div class="paneldesc">pInfectionOnContact<br></div>
+                <div class="slidertext" id="oPInfectedOnContact">50</div>
+                <input class="range" id="uPInfectedOnContact" type="range" min="0" max="1" step="0.05" style="margin-bottom: 20px;">
 
-            <div class="paneldesc">pSymptomaicOnInfection<br></div>
-            <div class="slidertext" id="oPSymptomaicOnInfection">50</div>
-            <input class="range" id="uPSymptomaicOnInfection" type="range" min="0" max="1" step="0.05" style="margin-bottom: 20px;">
+                <div class="paneldesc">Infection Radius<br></div>
+                <div class="slidertext" id="oInfectionRadius">50</div>
+                <input class="range" id="uInfectionRadius" type="range" min="0" max="5" step="1" style="margin-bottom: 20px;">
+            </div>
+            <div class="column">
+                <div class="paneltitle">Infection Effects</div>
+
+                <div class="paneldesc">Durration of Infection<br></div>
+                <div class="slidertext" id="oInfectionDurration">50</div>
+                <input class="range" id="uInfectionDurration" type="range" min="0" max="200" step="1" style="margin-bottom: 20px;">
+
+                <div class="paneldesc">pSymptomaicOnInfection<br></div>
+                <div class="slidertext" id="oPSymptomaicOnInfection">50</div>
+                <input class="range" id="uPSymptomaicOnInfection" type="range" min="0" max="1" step="0.05" style="margin-bottom: 20px;">
+            </div>
+
         </div>
-
-    </div>
-    <div class="column">
-        <div class="minorTitleColumn">Social Distancing Parameters</div>
         <div class="column">
-            <div class="paneltitle">SD Dynamics</div>
+            <div class="minorTitleColumn">Social Distancing Parameters</div>
+            <div class="column">
+                <div class="paneltitle">SD Dynamics</div>
 
-            <div class="paneldesc">Intensity of Repulsion<br></div>
-            <div class="slidertext" id="oPopulation">50</div>
-            <input class="range" id="uPopulation" type="range" min="-2" max="5" step="1" style="margin-bottom: 20px;">
+                <div class="paneldesc">Intensity of Repulsion<br></div>
+                <div class="slidertext" id="oSocialDistanceIntensity">50</div>
+                <!-- <input class="range" id="uSocialDistanceIntensity" type="range" min="-2" max="5" step="1" style="margin-bottom: 20px;"> -->
+                <input class="range" id="uSocialDistanceIntensity" type="range" min="-10" max="5000" step="1" style="margin-bottom: 20px;">
 
-            <div class="paneldesc">Percent observing SD<br></div>
-            <div class="slidertext" id="oPopulation">50%</div>
-            <input class="range" id="uPopulation" type="range" min="0" max="100" step="1" style="margin-bottom: 20px;">
-        </div>
-        <div class="column">
-            <div class="paneltitle">SD Conditions</div>
+                <div class="paneldesc">Percent observing SD<br></div>
+                <div class="slidertext" id="oPercentSocialDistancing">50%</div>
+                <input class="range" id="uPercentSocialDistancing" type="range" min="0" max="100" step="1" style="margin-bottom: 20px;">
+            </div>
+            <div class="column">
+                <div class="paneltitle">SD Conditions</div>
 
-            <div class="paneldesc">SD Start Threshold<br></div>
-            <div class="slidertext" id="oPopulation">50%</div>
-            <input class="range" id="uPopulation" type="range" min="0" max="100" step="1" style="margin-bottom: 20px;">
-            
-            <div class="paneldesc" style="text-align: center;">Limit SD to Symptomatic<br><br>
-                <input type="checkbox" style="text-align: center;" id="SDSymptomaticOnly">
+                <div class="paneldesc">SD Start Threshold<br></div>
+                <div class="slidertext" id="oSocialDistancingThreshold">50%</div>
+                <input class="range" id="uSocialDistancingThreshold" type="range" min="0" max="100" step="1" style="margin-bottom: 20px;">
+
+                <div class="paneldesc" style="text-align: center;">Limit SD to Symptomatic<br><br>
+                    <input type="checkbox" style="text-align: center;" id="uIsSocialDistanceSymptomaticOnly">
+                </div>
             </div>
         </div>
     </div>
-</div>
-
-<body onload="startGame()">
-    <script src="sim.js"></script>
 </body>
+
+<script src="sim.js" onload="startGame()"></script>
 
 </html>
