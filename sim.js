@@ -25,7 +25,6 @@ class Board {
                 intensity: -1,
                 percentObserving: -1,
                 startThreshold: -1,
-                isLimetedToSymptomatic: -1,
                 isAvoider: -1,
                 isAvoided: -1,
             },
@@ -66,6 +65,9 @@ class Board {
                 var dist = Util.dist(sNode.getPos(), iNode.getPos());
                 if (dist < this.contagion.infectionRadius && Math.random() < this.contagion.pInfectedOnContact * dt) { // iNode.getInfectionRadius(), sNode.getPInfectedOnContact()
                     sNode.setInfectivity(Infectivity.I);
+                    if (Math.random() < this.contagion.pSymptomaticOnInfection) {
+                        sNode.isSymptomatic = true;
+                    }
                 }
             }
         }
@@ -73,6 +75,7 @@ class Board {
         for (const iNode of iNodes) {
             if (iNode.time - iNode.timeOfInfection > this.contagion.infectionDurration) {
                 iNode.setInfectivity(Infectivity.R);
+                iNode.isSymptomatic = false;
             }
         }
     }
@@ -85,13 +88,13 @@ class Board {
             }
         }
 
-        if (repulsionPoints.length > 0) {
-            for (const node of this.nodes) {
-                if (this.behaviors.socialDistancing.isAvoider(node)) {
-                    repulsionPoints.sort(function (a, b) { return Util.closest(node.getPos(), a, b) });
-                    // repulsionPoints are the closest N nodes, excluding itself
-                    node.repulsionPoints = repulsionPoints.slice(1, this.socialDistanceN + 1);
-                }
+        for (const node of this.nodes) {
+            if (this.behaviors.socialDistancing.isAvoider(node)) {
+                repulsionPoints.sort(function (a, b) { return Util.closest(node.getPos(), a, b) });
+                // repulsionPoints are the closest N nodes, excluding itself
+                node.repulsionPoints = repulsionPoints.slice(1, this.socialDistanceN + 1);
+            } else {
+                node.repulsionPoints = [];
             }
         }
     }
@@ -137,11 +140,12 @@ class Board {
         this.contagion.pSymptomaicOnInfection = pSymptomaicOnInfection;
     }
 
-    updateBehavior(intensity, percentObserving, startThreshold, isLimetedToSymptomatic) {
+    updateBehavior(intensity, percentObserving, startThreshold, isAvoiderFunc, isAvoidedFunc) {
         this.behaviors.socialDistancing.intensity = intensity;
         this.behaviors.socialDistancing.percentObserving = percentObserving;
         this.behaviors.socialDistancing.startThreshold = startThreshold;
-        this.behaviors.socialDistancing.isLimetedToSymptomatic = isLimetedToSymptomatic;
+        this.behaviors.socialDistancing.isAvoider = isAvoiderFunc;
+        this.behaviors.socialDistancing.isAvoided = isAvoidedFunc;
     }
 
     infectRandomNode() {
@@ -305,9 +309,6 @@ class Node {
 
             if (infectivity = Infectivity.I) {
                 this.timeOfInfection = this.time;
-                if (Math.random() < this.pSymptomaticOnInfection) {
-                    this.isSymptomatic = true;
-                }
             } else if (infectivity = Infectivity.R) {
                 this.timeOfRemoval = this.time;
                 this.symptomatic = false;
@@ -440,10 +441,30 @@ var Simulation = {
         "SocialDistancingThreshold": {
             "default": 10,
         },
-        "IsSocialDistanceSymptomaticOnly": {
-            "default": false,
+        "Avoider": {
+            "default": null,
+        },
+        "Avoided": {
+            "default": null,
         },
     },
+    nodeUtil: {
+        Everyone: function (node) {
+            return true;
+        },
+        Susceptible: function (node) {
+            return node.infectivity == Infectivity.S;
+        },
+        Infected: function (node) {
+            return node.infectivity == Infectivity.I;
+        },
+        Removed: function (node) {
+            return node.infectivity == Infectivity.R;
+        },
+        Symptomatic: function (node) {
+            return node.isSymptomatic;
+        },
+    }
 }
 
 
@@ -467,7 +488,8 @@ function update() {
         Simulation.inputs.SocialDistanceIntensity.u.value,
         Simulation.inputs.PercentSocialDistancing.u.value,
         Simulation.inputs.SocialDistancingThreshold.u.value,
-        Simulation.inputs.IsSocialDistanceSymptomaticOnly.u.checked
+        Simulation.nodeUtil[Simulation.inputs.Avoider.u.value],
+        Simulation.nodeUtil[Simulation.inputs.Avoided.u.value]
     );
     Simulation.board.iterate(1);
 }
@@ -478,8 +500,10 @@ function setupInput(id) {
     Simulation.inputs[id].u = document.getElementById("u" + id);
     Simulation.inputs[id].o = document.getElementById("o" + id);
 
-    // sets slider default
-    Simulation.inputs[id].u.value = Simulation.inputs[id].defaut;
+    // sets slider default if one is specified
+    if (Simulation.inputs[id].defaut != null) {
+        Simulation.inputs[id].u.value = Simulation.inputs[id].defaut;
+    }
 
     if (Simulation.inputs[id].o != null) {
         Simulation.inputs[id].o.innerHTML = Simulation.inputs[id].u.value;

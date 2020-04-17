@@ -92,6 +92,13 @@ h2 {
     font-family: nyt-franklin, helvetica, arial, sans-serif;
 }
 
+select {
+    color: #888;
+    text-align: left;
+    font-weight: 300;
+    height: 20px;
+}
+
 .paneldesc {
     color: #888;
     text-align: left;

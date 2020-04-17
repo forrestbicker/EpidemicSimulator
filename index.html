@@ -70,16 +70,25 @@
                 <div class="paneldesc">SD Start Threshold<br></div>
                 <div class="slidertext" id="oSocialDistancingThreshold">50%</div>
                 <input class="range" id="uSocialDistancingThreshold" type="range" min="0" max="100" step="1" style="margin-bottom: 20px;">
-                
-                <select id="uAvoider">
-                    <option value="Everyone">Everyone</option>
-                    <option value="Symptomatic">Symptomatic</option>
-                    <option value="Susceptible">Susceptible</option>
-                </select><select id="uAvoided">
-                    <option value="Everyone">Everyone</option>
-                    <option value="Symptomatic">Symptomatic</option>
-                    <option value="Susceptible">Susceptible</option>
-                </select>
+
+                <div class="paneldesc">
+                    Who avoids who<br><br>
+                    <select id="uAvoider">
+                        <option value="Everyone">Everyone</option>
+                        <option value="Susceptible">Susceptible</option>
+                        <option value="Infected">Infected</option>
+                        <option value="Symptomatic">Symptomatic</option>
+                        <option value="Removed">Removed</option>
+                    </select>
+                    avoids
+                    <select id="uAvoided">
+                        <option value="Everyone">Everyone</option>
+                        <option value="Susceptible">Susceptible</option>
+                        <option value="Infected">Infected</option>
+                        <option value="Symptomatic">Symptomatic</option>
+                        <option value="Removed">Removed</option>
+                    </select>
+                </div>
                 <!-- <div class="paneldesc" style="text-align: center;">Limit SD to Symptomatic<br><br>
                     <input type="checkbox" style="text-align: center;" id="uIsSocialDistanceSymptomaticOnly">
                 </div> -->
