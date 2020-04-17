@@ -33,6 +33,11 @@ class Board {
         this.width = width;
         this.height = height;
         this.nodes = [];
+
+        // // TODO: duplicate fields yes, but shaves off best case O(dt*n) computations for worst case O(2n)
+        // this.susceptibleNodes = []; 
+        // this.infectedNodes = [];
+        // this.removeNodes = []
     }
 
     addNode() {
@@ -44,15 +49,31 @@ class Board {
     }
 
     updateNodePositions(dt) {
-        for (var i = 0; i < this.nodes.length; i++) {
-            var socialDistanceIntensity;
-            if (this.behaviors.socialDistancing.percentObserving >= i / this.nodes.length) {
-                socialDistanceIntensity = this.behaviors.socialDistancing.intensity;
-            } else {
-                socialDistanceIntensity = 0;
+        if (this.behaviors.socialDistancing.startThreshold > (this.nodes.length - this.countSusceptibleNodes()) / this.nodes.length) {
+            for (var i = 0; i < this.nodes.length; i++) {
+                this.nodes[i].updatePosition(0, dt);
             }
-            this.nodes[i].updatePosition(socialDistanceIntensity, dt);
+        } else {
+            for (var i = 0; i < this.nodes.length; i++) {
+                var socialDistanceIntensity;
+                if (this.behaviors.socialDistancing.percentObserving >= i / this.nodes.length) {
+                    socialDistanceIntensity = this.behaviors.socialDistancing.intensity;
+                } else {
+                    socialDistanceIntensity = 0;
+                }
+                this.nodes[i].updatePosition(socialDistanceIntensity, dt);
+            }
         }
+    }
+
+    countSusceptibleNodes() {
+        var count = 0;
+        for (const node of this.nodes) {
+            if (node.infectivity == Infectivity.S) {
+                count++;
+            }
+        }
+        return count;
     }
 
     updateNodeInfectivitys(dt) {
@@ -435,13 +456,13 @@ var Simulation = {
     },
     inputs: {
         "Population": {
-            "default": 5,
+            "default": 100,
         },
         "PInfectedOnContact": {
             "default": 0.20,
         },
         "InfectionRadius": {
-            "default": 10,
+            "default": 3,
         },
         "InfectionDurration": {
             "default": 100,
@@ -450,13 +471,13 @@ var Simulation = {
             "default": 0.8,
         },
         "SocialDistanceIntensity": {
-            "default": 0,
+            "default": 0.6,
         },
         "PercentSocialDistancing": {
-            "default": 1,
+            "default": 100,
         },
         "SocialDistancingThreshold": {
-            "default": 10,
+            "default": 25,
         },
         "Avoider": {
             "default": null,
@@ -504,7 +525,7 @@ function update() {
     Simulation.board.updateBehavior(
         Simulation.inputs.SocialDistanceIntensity.u.value * 5000,
         Simulation.inputs.PercentSocialDistancing.u.value / 100,
-        Simulation.inputs.SocialDistancingThreshold.u.value,
+        Simulation.inputs.SocialDistancingThreshold.u.value / 100,
         Simulation.nodeUtil[Simulation.inputs.Avoider.u.value],
         Simulation.nodeUtil[Simulation.inputs.Avoided.u.value]
     );
@@ -513,16 +534,16 @@ function update() {
 
 
 function setupInput(id) {
+
     // finds slider input and output
     Simulation.inputs[id].u = document.getElementById("u" + id);
     Simulation.inputs[id].o = document.getElementById("o" + id);
 
-    // sets slider default if one is specified
-    if (Simulation.inputs[id].defaut != null) {
-        Simulation.inputs[id].u.value = Simulation.inputs[id].defaut;
-    }
+    if (Simulation.inputs[id].default != null) {
 
-    if (Simulation.inputs[id].o != null) {
+        // sets slider default if one is specified
+        Simulation.inputs[id].u.value = Simulation.inputs[id].default;
+
         Simulation.inputs[id].o.innerHTML = Simulation.inputs[id].u.value;
 
         // asigns slider updating rule
@@ -530,7 +551,6 @@ function setupInput(id) {
             Simulation.inputs[id].o.innerHTML = this.value;
         }
     }
-    // }
 }
 
 function setupUI() {
