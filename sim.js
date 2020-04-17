@@ -21,7 +21,14 @@ class Board {
             pSymptomaicOnInfection: -1,
         };
         this.behaviors = {
-            socialDistancing: {},
+            socialDistancing: {
+                intensity: -1,
+                percentObserving: -1,
+                startThreshold: -1,
+                isLimetedToSymptomatic: -1,
+                isAvoider: -1,
+                isAvoided: -1,
+            },
         };
 
         this.width = width;
@@ -37,13 +44,13 @@ class Board {
         this.nodes.pop();
     }
 
-    updatePositions(dt) {
+    updateNodePositions(dt) {
         for (const node of this.nodes) {
-            node.updatePosition(dt);
+            node.updatePosition(node.calculateNetForce(this.behaviors.socialDistancing.intensity), dt);
         }
     }
 
-    updateInfectivitys(dt) {
+    updateNodeInfectivitys(dt) {
         var sNodes = [];
         var iNodes = []; // TODO: efficent stored so dont have to loop
         for (const node of this.nodes) {
@@ -70,23 +77,17 @@ class Board {
         }
     }
 
-    updateSocialDistancing() {
+    updateNodeSocialDistancing() {
         var repulsionPoints = [];
-        if (this.behaviors.socialDistancing.isLimetedToSymptomatic) {
-            for (const node of this.nodes) {
-                if (node.isSymptomatic) {
-                    repulsionPoints.push(node.getPos());
-                }
-            }
-        } else {
-            for (const node of this.nodes) {
+        for (const node of this.nodes) {
+            if (this.behaviors.socialDistancing.isAvoided(node)) {
                 repulsionPoints.push(node.getPos());
             }
         }
 
         if (repulsionPoints.length > 0) {
             for (const node of this.nodes) {
-                if (this.behaviors.socialDistancing.intensity != 0) { // TODO: refactor board references out of node
+                if (this.behaviors.socialDistancing.isAvoider(node)) {
                     repulsionPoints.sort(function (a, b) { return Util.closest(node.getPos(), a, b) });
                     // repulsionPoints are the closest N nodes, excluding itself
                     node.repulsionPoints = repulsionPoints.slice(1, this.socialDistanceN + 1);
@@ -95,20 +96,20 @@ class Board {
         }
     }
 
-    drawNodes() {
+    drawNodes(context) {
         for (var i = 0; i < this.nodes.length; i++) {
-            this.nodes[i].draw();
+            this.nodes[i].draw(context);
         }
     }
 
     iterate(dt) {
-        var ctx = Simulation.canvas.getContext('2d');
-        ctx.clearRect(0, 0, this.width, this.height);
+        var context = Simulation.canvas.getContext('2d');
+        context.clearRect(0, 0, this.width, this.height);
 
-        this.updatePositions(dt);
-        this.updateInfectivitys(dt);
-        this.updateSocialDistancing();
-        this.drawNodes();
+        this.updateNodePositions(dt);
+        this.updateNodeInfectivitys(dt);
+        this.updateNodeSocialDistancing();
+        this.drawNodes(context);
     }
 
     getRandomNode() {
@@ -173,7 +174,6 @@ class Node {
     socialDistanceIntensity = 10;
 
     constructor(board) {
-        this.board = board;
         this.infectivity = Infectivity.S;
         this.x = Util.round(board.width * Math.random(), 5)
         this.y = Util.round(board.height * Math.random(), 5);
@@ -188,10 +188,8 @@ class Node {
         this.timeOfInfection;
     }
 
-    updatePosition(dt) {
-        var netForce = this.calculateNetForce();
-
-        this.velocity = Util.vectSum(Util.vectMult(dt, netForce), this.velocity);
+    updatePosition(force, dt) {
+        this.velocity = Util.vectSum(Util.vectMult(dt, force), this.velocity);
 
         // limit speed
         var speed = Util.norm(this.velocity)
@@ -203,7 +201,7 @@ class Node {
         this.time += dt;
     }
 
-    calculateNetForce() {
+    calculateNetForce(socialDistanceIntensity) {
         var netForce = [0, 0];
 
         // walking
@@ -213,7 +211,7 @@ class Node {
 
         // social distancing
         if (this.socialDistanceIntensity != 0) {
-            netForce = Util.vectSum(netForce, this.calculateSocialDistanceForce());
+            netForce = Util.vectSum(netForce, this.calculateSocialDistanceForce(socialDistanceIntensity));
         }
 
         // wall repulsion
@@ -239,7 +237,7 @@ class Node {
         return stepForce;
     }
 
-    calculateSocialDistanceForce() {
+    calculateSocialDistanceForce(intensity) {
         var repulsionForce = [0, 0];
         var minDist = Infinity;
 
@@ -253,7 +251,7 @@ class Node {
 
             // adds step vector component to netForceVector
             if (dist > 0) {
-                repulsionForce = Util.vectSum(repulsionForce, Util.vectMult(-this.board.behaviors.socialDistancing.intensity/ Util.pow(dist, 3), toPoint));
+                repulsionForce = Util.vectSum(repulsionForce, Util.vectMult(-intensity / Util.pow(dist, 3), toPoint));
             }
         }
 
@@ -321,13 +319,11 @@ class Node {
         return "(" + this.x + ", " + this.y + ")";
     }
 
-    draw() {
-        var ctx = Simulation.canvas.getContext('2d');
-
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, Simulation.config.nodeRadius, 0, 2 * Math.PI, false);
-        ctx.fillStyle = Simulation.config.colors[this.infectivity];
-        ctx.fill()
+    draw(context) {
+        context.beginPath();
+        context.arc(this.x, this.y, Simulation.config.nodeRadius, 0, 2 * Math.PI, false);
+        context.fillStyle = Simulation.config.colors[this.infectivity];
+        context.fill()
     }
 }
 
