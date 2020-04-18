@@ -465,7 +465,7 @@ var Simulation = {
             "default": 3,
         },
         "InfectionDurration": {
-            "default": 100,
+            "default": 14,
         },
         "PSymptomaticOnInfection": {
             "default": 0.8,
@@ -519,7 +519,7 @@ function update() {
     Simulation.board.updateContagion(
         Simulation.inputs.InfectionRadius.u.value * 10,
         Simulation.inputs.PInfectedOnContact.u.value,
-        Simulation.inputs.InfectionDurration.u.value,
+        Simulation.inputs.InfectionDurration.u.value * 10,
         Simulation.inputs.PSymptomaticOnInfection.u.value
     );
     Simulation.board.updateBehavior(
