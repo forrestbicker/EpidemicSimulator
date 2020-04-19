@@ -146,7 +146,6 @@ class Board {
         return this.nodes[Math.floor(Simulation.board.nodes.length * Math.random())];
     }
 
-
     updatePopulation(newPopulation) {
         if (this.nodes.length > newPopulation) {
             while (this.nodes.length > newPopulation) {
@@ -183,6 +182,10 @@ class Board {
         if (i >= 0) {
             this.nodes[i].setInfectivity(Infectivity.I);
         }
+    }
+
+    reset() {
+        this.nodes = [];
     }
 
     toString() {
@@ -558,4 +561,5 @@ function setupUI() {
         setupInput(input);
     }
     document.getElementById("uInfect").onclick = function () { Simulation.board.infectRandomNode() };
+    document.getElementById("uReset").onclick = function () { Simulation.board.reset() };
 }
